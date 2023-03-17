@@ -6,7 +6,7 @@ require("configs.remap")
 -- DO NOT INCLUDE THIS
 
 local augroup = vim.api.nvim_create_augroup
-local ThePrimeagenGroup = augroup('ThePrimeagen', {})
+local AutoCmdGroup = augroup('AutoCmds', {})
 
 local autocmd = vim.api.nvim_create_autocmd
 local yank_group = augroup('HighlightYank', {})
@@ -27,7 +27,7 @@ autocmd('TextYankPost', {
 })
 
 autocmd({"BufWritePre"}, {
-    group = ThePrimeagenGroup,
+    group = AutoCmdGroup,
     pattern = "*",
     command = [[%s/\s\+$//e]],
 })

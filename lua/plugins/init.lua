@@ -4,7 +4,6 @@ return {
     'nvim-treesitter/nvim-treesitter-context',
     'theprimeagen/harpoon',
     'tpope/vim-fugitive',
-    'folke/zen-mode.nvim',
     'github/copilot.vim',
     {
         'eandrju/cellular-automaton.nvim',

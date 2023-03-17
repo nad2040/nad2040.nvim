@@ -1,10 +1,10 @@
 return {
     'folke/trouble.nvim',
     keys = {
-        { '<leader>xq', '<CMD>TroubleToggle quickfix<CR>', mode = 'n', silent = true, noremap = true },
-        -- {'n', '<leader>xd', 'TroubleToggle lsp_document_diagnostics'},
-        -- {'n', '<leader>xl', 'TroubleToggle lsp_location_list'},
-        -- {'n', '<leader>xw', 'TroubleToggle lsp_workspace_diagnostics'},
+        { '<leader>ttf', '<CMD>TroubleToggle quickfix<CR>', silent = true, noremap = true },
+        { '<leader>ttdd', 'TroubleToggle lsp_document_diagnostics'},
+        { '<leader>ttl', 'TroubleToggle lsp_location_list'},
+        { '<leader>ttdw', 'TroubleToggle lsp_workspace_diagnostics'},
     },
     config = function()
         require('trouble').setup {
