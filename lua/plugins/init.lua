@@ -1,5 +1,4 @@
 return {
-
     'nvim-treesitter/playground',
     'nvim-treesitter/nvim-treesitter-context',
     'theprimeagen/harpoon',
@@ -15,4 +14,8 @@ return {
         config = true,
     },
     'mfussenegger/nvim-jdtls',
+    {
+        'HiPhish/nvim-ts-rainbow2',
+        lazy = false,
+    },
 }
