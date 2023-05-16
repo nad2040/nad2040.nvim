@@ -1,8 +1,6 @@
 return {
     'nvim-treesitter/playground',
     'nvim-treesitter/nvim-treesitter-context',
-    'theprimeagen/harpoon',
-    'tpope/vim-fugitive',
     'github/copilot.vim',
     {
         'eandrju/cellular-automaton.nvim',
