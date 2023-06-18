@@ -7,7 +7,10 @@ return {
             -- This is where you modify the settings for lsp-zero
             -- Note: autocompletion settings will not take effect
 
-            require('lsp-zero.settings').preset({})
+            require('lsp-zero').preset({
+                name = "recommended",
+            })
+
         end
     },
     -- Autocompletion
@@ -28,6 +31,13 @@ return {
             -- The arguments for .extend() have the same shape as `manage_nvim_cmp`:
             -- https://github.com/VonHeikemen/lsp-zero.nvim/blob/v2.x/doc/md/api-reference.md#manage_nvim_cmp
 
+            local lsp = require('lsp-zero')
+            lsp.omnifunc.setup({
+              tabcomplete = true,
+              use_fallback = true,
+              update_on_delete = true,
+            })
+
             require('lsp-zero.cmp').extend()
 
             -- And you can configure cmp even more, if you want to.
@@ -42,9 +52,9 @@ return {
                     ['<C-b>'] = cmp_action.luasnip_jump_backward(),
                     ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
                     ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-                    ['<C-y>'] = cmp.mapping.confirm({ select = true }),
-                    ['<Tab>'] = nil,
-                    ['<S-Tab>'] = nil,
+                    ['<CR>'] = cmp.mapping.confirm({ select = true }),
+                    ['<Tab>'] = cmp_action.luasnip_supertab(),
+                    ['<S-Tab>'] = cmp_action.luasnip_shift_supertab(),
                 }
             })
         end

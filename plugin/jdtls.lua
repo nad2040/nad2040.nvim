@@ -27,7 +27,7 @@ local function get_jdtls_paths()
 
     path.data_dir = vim.fn.stdpath('cache') .. '/jdtls/workspace'
 
-    local jdtls_install = '/opt/homebrew/Cellar/jdtls/1.23.0/libexec'
+    local jdtls_install = '/opt/homebrew/Cellar/jdtls/1.24.0/libexec'
     --                                  change here   ^^^^^^
 
     -- path.java_agent = jdtls_install .. '/lombok.jar'
