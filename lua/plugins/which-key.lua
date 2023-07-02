@@ -11,6 +11,7 @@ return {
                 -- refer to the configuration section below
             })
             wk.register({
+                a = { name = "alpha" },
                 g = { name = "gitsigns/...",
                     s = { name = "gitsigns",
                         t = { name = "toggle"
