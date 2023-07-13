@@ -92,7 +92,10 @@ return {
                     Lua = {
                         diagnostics = {
                             globals = { 'vim' }
-                        }
+                        },
+                        hint = {
+                            enable = true,
+                        },
                     }
                 }
             })
@@ -120,6 +123,19 @@ return {
                 vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
                 vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
                 vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
+
+                vim.api.nvim_create_augroup("lsp_augroup", { clear = true })
+
+                vim.api.nvim_create_autocmd("InsertEnter", {
+                    buffer = bufnr,
+                    callback = function() vim.lsp.inlay_hint(bufnr, true) end,
+                    group = "lsp_augroup",
+                })
+                vim.api.nvim_create_autocmd("InsertLeave", {
+                    buffer = bufnr,
+                    callback = function() vim.lsp.inlay_hint(bufnr, false) end,
+                    group = "lsp_augroup",
+                })
             end)
 
             -- (Optional) Configure lua language server for neovim
