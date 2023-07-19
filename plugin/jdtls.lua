@@ -1,4 +1,4 @@
-local java_cmds = vim.api.nvim_create_augroup('java_cmds', {clear = true})
+local java_cmds = vim.api.nvim_create_augroup('java_cmds', { clear = true })
 local cache_vars = {}
 
 local root_markers = {
@@ -117,10 +117,10 @@ local function enable_codelens(bufnr)
 end
 
 local function enable_debugger(bufnr)
-    require('jdtls').setup_dap({hotcodereplace = 'auto'})
+    require('jdtls').setup_dap({ hotcodereplace = 'auto' })
     require('jdtls.dap').setup_dap_main_class_configs()
 
-    local opts = {buffer = bufnr}
+    local opts = { buffer = bufnr }
     vim.keymap.set('n', '<leader>df', "<cmd>lua require('jdtls').test_class()<cr>", opts)
     vim.keymap.set('n', '<leader>dn', "<cmd>lua require('jdtls').test_nearest_method()<cr>", opts)
 end
@@ -137,7 +137,7 @@ local function jdtls_on_attach(client, bufnr)
     -- The following mappings are based on the suggested usage of nvim-jdtls
     -- https://github.com/mfussenegger/nvim-jdtls#usage
 
-    local opts = {buffer = bufnr}
+    local opts = { buffer = bufnr }
     vim.keymap.set('n', '<A-o>', "<cmd>lua require('jdtls').organize_imports()<cr>", opts)
     vim.keymap.set('n', 'crv', "<cmd>lua require('jdtls').extract_variable()<cr>", opts)
     vim.keymap.set('x', 'crv', "<esc><cmd>lua require('jdtls').extract_variable(true)<cr>", opts)
@@ -161,15 +161,15 @@ local function jdtls_setup(event)
     local jdtls = require('jdtls')
 
     local path = get_jdtls_paths()
-    local data_dir = path.data_dir .. '/' ..  vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
+    local data_dir = path.data_dir .. '/' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
     if cache_vars.capabilities == nil then
         jdtls.extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
         local ok_cmp, cmp_lsp = pcall(require, 'cmp_nvim_lsp')
         cache_vars.capabilities = vim.tbl_deep_extend(
-        'force',
-        vim.lsp.protocol.make_client_capabilities(),
-        ok_cmp and cmp_lsp.default_capabilities() or {}
+            'force',
+            vim.lsp.protocol.make_client_capabilities(),
+            ok_cmp and cmp_lsp.default_capabilities() or {}
         )
     end
 
@@ -207,8 +207,8 @@ local function jdtls_setup(event)
             --         vmargs = "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx1G -Xms100m"
             --     }
             -- },
-            -- eclipse = { downloadSources = true },
-            -- maven = { downloadSources = true },
+            eclipse = { downloadSources = true },
+            maven = { downloadSources = true },
             signatureHelp = { enabled = true },
             import = { enabled = true },
             rename = { enabled = true },
@@ -217,13 +217,13 @@ local function jdtls_setup(event)
                 updateBuildConfiguration = 'interactive',
                 runtimes = path.runtimes,
             },
-            -- implementationsCodeLens = { enabled = true },
-            -- referencesCodeLens = { enabled = true },
-            -- inlayHints = {
-            --   parameterNames = {
-            --     enabled = 'all' -- literals, all, none
-            --   }
-            -- },
+            implementationsCodeLens = { enabled = true },
+            referencesCodeLens = { enabled = true },
+            inlayHints = {
+                parameterNames = {
+                    enabled = 'all' -- literals, all, none
+                }
+            },
             format = {
                 enabled = true,
                 -- settings = {
@@ -279,7 +279,7 @@ end
 
 vim.api.nvim_create_autocmd('FileType', {
     group = java_cmds,
-    pattern = {'java'},
+    pattern = { 'java' },
     desc = 'Setup jdtls',
     callback = jdtls_setup,
 })

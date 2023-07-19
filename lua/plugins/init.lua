@@ -1,7 +1,6 @@
 return {
     'nvim-treesitter/playground',
     'nvim-treesitter/nvim-treesitter-context',
-    'github/copilot.vim',
     {
         'eandrju/cellular-automaton.nvim',
         keys = { { '<leader>mr', '<CMD>CellularAutomaton make_it_rain<CR>' } },
@@ -9,8 +8,8 @@ return {
     {
         "nvim-lualine/lualine.nvim",
         dependencies = "nvim-tree/nvim-web-devicons",
-        config = function ()
-            require("lualine").setup{
+        config = function()
+            require("lualine").setup {
                 options = {
                     theme = 'tokyonight'
                 }
