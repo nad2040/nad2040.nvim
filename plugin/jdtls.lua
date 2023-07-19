@@ -11,11 +11,11 @@ local root_markers = {
 
 local features = {
     -- change this to `true` to enable codelens
-    codelens = false,
+    codelens = true,
 
     -- change this to `true` if you have `nvim-dap`,
     -- `java-test` and `java-debug-adapter` installed
-    debugger = false,
+    debugger = true,
 }
 
 local function get_jdtls_paths()
@@ -46,34 +46,34 @@ local function get_jdtls_paths()
     ---
     -- Include java-test bundle if present
     ---
-    -- local java_test_path = require('mason-registry')
-    --   .get_package('java-test')
-    --   :get_install_path()
-    --
-    -- local java_test_bundle = vim.split(
-    --   vim.fn.glob(java_test_path .. '/extension/server/*.jar'),
-    --   '\n'
-    -- )
-    --
-    -- if java_test_bundle[1] ~= '' then
-    --   vim.list_extend(path.bundles, java_test_bundle)
-    -- end
+    local java_test_path = require('mason-registry')
+        .get_package('java-test')
+        :get_install_path()
+
+    local java_test_bundle = vim.split(
+        vim.fn.glob(java_test_path .. '/extension/server/*.jar'),
+        '\n'
+    )
+
+    if java_test_bundle[1] ~= '' then
+        vim.list_extend(path.bundles, java_test_bundle)
+    end
 
     ---
     -- Include java-debug-adapter bundle if present
     ---
-    -- local java_debug_path = require('mason-registry')
-    --   .get_package('java-debug-adapter')
-    --   :get_install_path()
-    --
-    -- local java_debug_bundle = vim.split(
-    --   vim.fn.glob(java_debug_path .. '/extension/server/com.microsoft.java.debug.plugin-*.jar'),
-    --   '\n'
-    -- )
-    --
-    -- if java_debug_bundle[1] ~= '' then
-    --   vim.list_extend(path.bundles, java_debug_bundle)
-    -- end
+    local java_debug_path = require('mason-registry')
+        .get_package('java-debug-adapter')
+        :get_install_path()
+
+    local java_debug_bundle = vim.split(
+        vim.fn.glob(java_debug_path .. '/extension/server/com.microsoft.java.debug.plugin-*.jar'),
+        '\n'
+    )
+
+    if java_debug_bundle[1] ~= '' then
+        vim.list_extend(path.bundles, java_debug_bundle)
+    end
 
     ---
     -- Useful if you're starting jdtls with a Java version that's
@@ -144,24 +144,14 @@ local function jdtls_on_attach(client, bufnr)
     vim.keymap.set('n', 'crc', "<cmd>lua require('jdtls').extract_constant()<cr>", opts)
     vim.keymap.set('x', 'crc', "<esc><cmd>lua require('jdtls').extract_constant(true)<cr>", opts)
     vim.keymap.set('x', 'crm', "<esc><Cmd>lua require('jdtls').extract_method(true)<cr>", opts)
-
-    -- vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-    -- vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-    -- vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-    -- vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-    -- vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
-    -- vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
-    -- vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
-    -- vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
-    -- vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
-    -- vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
 end
 
 local function jdtls_setup(event)
     local jdtls = require('jdtls')
 
     local path = get_jdtls_paths()
-    local data_dir = path.data_dir .. '/' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
+    local data_dir = path.data_dir ..
+        '/' .. vim.fn.fnamemodify(jdtls.setup.find_root(root_markers), ':p:h:t') .. '_workspace'
     if cache_vars.capabilities == nil then
         jdtls.extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
@@ -179,39 +169,43 @@ local function jdtls_setup(event)
         -- 💀
         '/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home/bin/java', -- or '/path/to/java17_or_newer/bin/java'
         -- depends on if `java` is in your $PATH env variable and if it points to the right version.
+
         '-Declipse.application=org.eclipse.jdt.ls.core.id1',
         '-Dosgi.bundles.defaultStartLevel=4',
         '-Declipse.product=org.eclipse.jdt.ls.core.product',
         '-Dlog.protocol=true',
         '-Dlog.level=ALL',
+        -- '-javaagent:' .. path.java_agent,
         '-Xms1g',
         '--add-modules=ALL-SYSTEM',
         '--add-opens', 'java.base/java.util=ALL-UNNAMED',
         '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+
         -- 💀
         '-jar',
         path.launcher_jar,
+
         -- 💀
         '-configuration',
         path.platform_config,
+
         -- 💀
         -- See `data directory configuration` section in the README
         '-data',
         data_dir,
     }
 
-    local settings = {
+    local lsp_settings = {
         java = {
-            -- jdt = {
-            --     ls = {
-            --         vmargs = "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx1G -Xms100m"
-            --     }
-            -- },
+            jdt = {
+                ls = {
+                    vmargs =
+                    "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx1G -Xms100m"
+                }
+            },
             eclipse = { downloadSources = true },
             maven = { downloadSources = true },
-            signatureHelp = { enabled = true },
-            import = { enabled = true },
-            rename = { enabled = true },
+            signatureHelp = { description = { enabled = true } },
             contentProvider = { preferred = 'fernflower' },
             configuration = {
                 updateBuildConfiguration = 'interactive',
@@ -224,50 +218,46 @@ local function jdtls_setup(event)
                     enabled = 'all' -- literals, all, none
                 }
             },
-            format = {
-                enabled = true,
-                -- settings = {
-                --     profile = 'asdf'
-                -- },
-            }
-        },
-        completion = {
-            favoriteStaticMembers = {
-                'org.hamcrest.MatcherAssert.assertThat',
-                'org.hamcrest.Matchers.*',
-                'org.hamcrest.CoreMatchers.*',
-                'org.junit.jupiter.api.Assertions.*',
-                'java.util.Objects.requireNonNull',
-                'java.util.Objects.requireNonNullElse',
-                'org.mockito.Mockito.*',
+            -- project = {
+            --     sourcePaths = { "src/**/java/" },
+            -- },
+            completion = {
+                favoriteStaticMembers = {
+                    'org.hamcrest.MatcherAssert.assertThat',
+                    'org.hamcrest.Matchers.*',
+                    'org.hamcrest.CoreMatchers.*',
+                    'org.junit.jupiter.api.Assertions.*',
+                    'java.util.Objects.requireNonNull',
+                    'java.util.Objects.requireNonNullElse',
+                    'org.mockito.Mockito.*',
+                },
+            },
+            sources = {
+                organizeImports = {
+                    starThreshold = 9999,
+                    staticStarThreshold = 9999,
+                }
+            },
+            codeGeneration = {
+                toString = {
+                    template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}"
+                },
+                hashCodeEquals = {
+                    useJava7Objects = false,
+                },
+                useBlocks = true,
             },
         },
         extendedClientCapabilities = jdtls.extendedClientCapabilities,
-        sources = {
-            organizeImports = {
-                starThreshold = 9999,
-                staticStarThreshold = 9999,
-            }
-        },
-        codeGeneration = {
-            toString = {
-                template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}"
-            },
-            hashCodeEquals = {
-                useJava7Objects = false,
-            },
-            useBlocks = true,
-        },
     }
 
     -- This starts a new client & server,
     -- or attaches to an existing client & server depending on the `root_dir`.
     jdtls.start_or_attach({
         cmd = cmd,
-        settings = settings,
+        settings = lsp_settings,
         on_attach = jdtls_on_attach,
         capabilities = cache_vars.capabilities,
-        root_dir = jdtls.setup.find_root(root_markers),
         flags = {
             allow_incremental_sync = true,
         },
