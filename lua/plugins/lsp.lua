@@ -41,6 +41,7 @@ return {
                     { name = "nvim_lsp", group_index = 2 },
                     { name = "path",     group_index = 2 },
                     { name = "luasnip",  group_index = 2 },
+                    { name = "emmet_ls", group_index = 2 },
                 },
                 mapping = {
                     ['<C-Space>'] = cmp.mapping.complete(),
@@ -71,30 +72,38 @@ return {
         },
         config = function()
             -- This is where all the LSP shenanigans will live
-            local lsp = require('lsp-zero').preset({})
-
-            lsp.omnifunc.setup({
-                tabcomplete = true,
-                use_fallback = true,
-                update_on_delete = true,
+            local lsp = require('lsp-zero').preset({
+                set_lsp_keymaps = { preserve_mappings = false },
             })
+
+            -- lsp.omnifunc.setup({
+            --     tabcomplete = true,
+            --     use_fallback = true,
+            --     update_on_delete = true,
+            -- })
 
             lsp.on_attach(function(client, bufnr)
                 local opts = { buffer = bufnr, remap = false }
-                lsp.default_keymaps({ buffer = bufnr })
-                -- LSP actions
-                vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-                vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-                vim.keymap.set("n", "gD", function() vim.lsp.buf.declaration() end, opts)
-                vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-                vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
-                vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
-                vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
-                vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
-                -- Diagnostics
-                vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-                vim.keymap.set('n', '[d', function() vim.diagnostic.goto_prev() end, opts)
-                vim.keymap.set('n', ']d', function() vim.diagnostic.goto_next() end, opts)
+
+                local wk = require('which-key')
+                wk.register({
+                    -- LSP actions
+                    ["K"] = { function() vim.lsp.buf.hover() end, "Hover" },
+                    ["gd"] = { function() vim.lsp.buf.definition() end, "Go to Definition" },
+                    ["gD"] = { function() vim.lsp.buf.declaration() end, "Go to Declaration" },
+                    ["<leader>vws"] = { function() vim.lsp.buf.workspace_symbol() end, "Workspace symbol" },
+                    ["<leader>vca"] = { function() vim.lsp.buf.code_action() end, "View code actions" },
+                    ["<leader>vrn"] = { function() vim.lsp.buf.rename() end, "Rename" },
+                    ["<leader>vrr"] = { function() vim.lsp.buf.references() end, "References" },
+                    ["<leader>H"] = { function() vim.lsp.inlay_hint(bufnr, nil) end, "Toggle Inlay Hints" },
+                    -- Diagnostics
+                    ["<leader>vd"] = { function() vim.diagnostic.open_float() end, "Open diagnostic" },
+                    ["[d"] = { function() vim.diagnostic.goto_prev() end, "Previous diagnostic" },
+                    ["]d"] = { function() vim.diagnostic.goto_next() end, "Next diagnostic" },
+                }, { buffer = bufnr })
+                wk.register({
+                    ["<C-h>"] = { function() vim.lsp.buf.signature_help() end, "Signature help" }
+                }, { mode = "i", buffer = bufnr })
 
                 -- vim.api.nvim_create_augroup("lsp_augroup", { clear = true })
                 -- vim.api.nvim_create_autocmd("InsertEnter", {
@@ -149,6 +158,21 @@ return {
                         -- (Optional) Configure lua language server for neovim
                         require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
                     end,
+                    emmet_ls = function()
+                        require('lspconfig').emmet_ls.setup({
+                            -- on_attach = on_attach,
+                            filetypes = { "css", "eruby", "html", "javascript", "javascriptreact", "less", "sass",
+                                "scss", "svelte", "pug", "typescriptreact", "vue" },
+                            init_options = {
+                                html = {
+                                    options = {
+                                        -- For possible options, see: https://github.com/emmetio/emmet/blob/master/src/config.ts#L79-L267
+                                        ["bem.enabled"] = true,
+                                    },
+                                },
+                            }
+                        })
+                    end,
                     jdtls = lsp.noop,
                 }
             })
@@ -160,7 +184,7 @@ return {
                 },
                 servers = {
                     ['lua_ls'] = { 'lua' },
-                    -- ['rust_analyzer'] = { 'rust' },
+                    ['rust_analyzer'] = { 'rust' },
                     -- if you have a working setup with null-ls
                     -- you can specify filetypes it can format.
                     -- ['null-ls'] = {'javascript', 'typescript'},

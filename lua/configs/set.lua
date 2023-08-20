@@ -1,3 +1,6 @@
+-- disable netrw at the very start of your init.lua
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
 vim.opt.nu = true
 vim.opt.relativenumber = true
@@ -29,29 +32,6 @@ vim.opt.updatetime = 50
 
 vim.opt.colorcolumn = ""
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+vim.o.foldmethod = "expr"
+vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.o.foldenable = false -- Disable folding at startup.
