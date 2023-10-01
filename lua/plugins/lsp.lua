@@ -1,7 +1,7 @@
 return {
     {
         'VonHeikemen/lsp-zero.nvim',
-        branch = 'dev-v3',
+        branch = 'v3.x',
         lazy = true,
         config = false,
     },
@@ -57,6 +57,11 @@ return {
                     }),
                     ['<Tab>'] = nil, --[[ cmp_action.luasnip_supertab(), ]]
                     ['<S-Tab>'] = nil, --[[ cmp_action.luasnip_shift_supertab(), ]]
+                },
+                snippet = {
+                    expand = function(args)
+                        require('luasnip').lsp_expand(args.body)
+                    end,
                 },
             })
         end
