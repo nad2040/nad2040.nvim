@@ -19,6 +19,7 @@ return {
             { 'hrsh7th/cmp-buffer' },
             { 'hrsh7th/cmp-path' },
             { 'hrsh7th/cmp-cmdline' },
+            { 'hrsh7th/cmp-nvim-lsp-signature-help' },
             { 'saadparwaiz1/cmp_luasnip' },
             { 'hrsh7th/cmp-nvim-lua' },
             { 'L3MON4D3/LuaSnip' },
@@ -36,12 +37,13 @@ return {
             cmp.setup({
                 sources = {
                     -- Copilot Source
-                    { name = "copilot",  group_index = 2 },
+                    { name = "copilot",                 group_index = 2 },
                     -- Other Sources
-                    { name = "nvim_lsp", group_index = 2 },
-                    { name = "path",     group_index = 2 },
-                    { name = "luasnip",  group_index = 2 },
-                    { name = "emmet_ls", group_index = 2 },
+                    { name = 'nvim_lsp_signature_help', group_index = 2 },
+                    { name = "nvim_lsp",                group_index = 2 },
+                    { name = "path",                    group_index = 2 },
+                    { name = "luasnip",                 group_index = 2 },
+                    { name = "emmet_ls",                group_index = 2 },
                 },
                 mapping = {
                     ['<C-Space>'] = cmp.mapping.complete(),

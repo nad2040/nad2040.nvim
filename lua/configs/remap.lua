@@ -6,8 +6,6 @@ keymap("", "<Space>", "<Nop>", opts)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
-keymap("n", "<leader>pv", "<CMD>NvimTreeToggle<CR>")
-
 keymap("n", "H", "<CMD>bp<CR>")
 keymap("n", "L", "<CMD>bn<CR>")
 keymap("n", "X", "<CMD>bd<CR>")
@@ -26,6 +24,7 @@ keymap("x", "<leader>p", [["_dP]])
 
 -- next greatest remap ever : asbjornHaland
 keymap({ "n", "v" }, "<leader>y", [["+y]])
+
 keymap("n", "<leader>Y", [["+Y]])
 
 keymap({ "n", "v" }, "<leader>d", [["_d]])
