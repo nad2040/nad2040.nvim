@@ -3,7 +3,8 @@ return {
     -- lazy = false,
     build = ':TSUpdate',
     config = function()
-        require('nvim-treesitter.configs').setup {
+        local treesitter = require('nvim-treesitter.configs')
+        treesitter.setup {
             -- A list of parser names, or "all"
             ensure_installed = "all",
 
@@ -25,6 +26,16 @@ return {
                 additional_vim_regex_highlighting = false,
             },
 
+            indent = { enable = true, },
+
+            incremental_selection = {
+                enable = true,
+                keymaps = {
+                    init_selection = "<C-space>",
+                    node_incremental = "<C-space>",
+                    node_decremental = "<bs>",
+                },
+            },
         }
     end
 }

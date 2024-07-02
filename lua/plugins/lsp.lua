@@ -4,6 +4,11 @@ return {
         branch = 'v3.x',
         lazy = true,
         config = false,
+        init = function()
+            -- Disable automatic setup, we are doing it manually
+            vim.g.lsp_zero_extend_cmp = 0
+            vim.g.lsp_zero_extend_lspconfig = 0
+        end,
     },
     {
         'williamboman/mason.nvim',
@@ -27,11 +32,12 @@ return {
         },
         config = function()
             -- Here is where you configure the autocompletion settings.
-            require('lsp-zero').extend_cmp()
+            local lsp_zero = require('lsp-zero')
+            lsp_zero.extend_cmp()
 
             -- And you can configure cmp even more, if you want to.
             local cmp = require('cmp')
-            local cmp_action = require('lsp-zero').cmp_action()
+            local cmp_action = lsp_zero.cmp_action()
             local cmp_select = { behavior = cmp.SelectBehavior.Select }
 
             cmp.setup({
@@ -45,7 +51,8 @@ return {
                     { name = "luasnip",                 group_index = 2 },
                     { name = "emmet_ls",                group_index = 2 },
                 },
-                mapping = {
+                formatting = lsp_zero.cmp_format({ details = true }),
+                mapping = cmp.mapping.preset.insert({
                     ['<C-Space>'] = cmp.mapping.complete(),
                     ['<C-f>'] = cmp_action.luasnip_jump_forward(),
                     ['<C-b>'] = cmp_action.luasnip_jump_backward(),
@@ -59,7 +66,7 @@ return {
                     }),
                     ['<Tab>'] = nil, --[[ cmp_action.luasnip_supertab(), ]]
                     ['<S-Tab>'] = nil, --[[ cmp_action.luasnip_shift_supertab(), ]]
-                },
+                }),
                 snippet = {
                     expand = function(args)
                         require('luasnip').lsp_expand(args.body)
@@ -79,9 +86,11 @@ return {
         },
         config = function()
             -- This is where all the LSP shenanigans will live
-            local lsp = require('lsp-zero').preset({
-                set_lsp_keymaps = { preserve_mappings = false },
-            })
+            local lsp_zero = require('lsp-zero')
+            lsp_zero.extend_lspconfig()
+            -- .preset({
+            --     set_lsp_keymaps = { preserve_mappings = false },
+            -- })
 
             -- lsp.omnifunc.setup({
             --     tabcomplete = true,
@@ -89,7 +98,7 @@ return {
             --     update_on_delete = true,
             -- })
 
-            lsp.on_attach(function(client, bufnr)
+            lsp_zero.on_attach(function(client, bufnr)
                 local opts = { buffer = bufnr, remap = false }
 
                 local wk = require('which-key')
@@ -107,6 +116,7 @@ return {
                     ["<leader>vd"] = { function() vim.diagnostic.open_float() end, "Open diagnostic" },
                     ["[d"] = { function() vim.diagnostic.goto_prev() end, "Previous diagnostic" },
                     ["]d"] = { function() vim.diagnostic.goto_next() end, "Next diagnostic" },
+                    ["<leader>f"] = { function() vim.lsp.buf.format() end, "Format" },
                 }, { buffer = bufnr })
                 wk.register({
                     ["<C-h>"] = { function() vim.lsp.buf.signature_help() end, "Signature help" }
@@ -126,7 +136,7 @@ return {
             end)
 
             -- Fix Undefined global 'vim'
-            lsp.configure('lua_ls', {
+            lsp_zero.configure('lua_ls', {
                 settings = {
                     Lua = {
                         diagnostics = {
@@ -139,7 +149,7 @@ return {
                 }
             })
 
-            lsp.set_preferences({
+            lsp_zero.set_preferences({
                 suggest_lsp_servers = false,
                 sign_icons = {
                     error = 'E',
@@ -157,13 +167,20 @@ return {
                     'lua_ls',
                     'pyright',
                     'rust_analyzer',
+                    'ocamllsp',
+                    'pest_ls',
                     'tsserver',
                 },
                 handlers = {
-                    lsp.default_setup,
+                    lsp_zero.default_setup,
+                    pest_ls = function()
+                        require('lspconfig').pest_ls.setup({
+                            filetypes = { "pest" }
+                        })
+                    end,
                     lua_ls = function()
                         -- (Optional) Configure lua language server for neovim
-                        require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
+                        require('lspconfig').lua_ls.setup(lsp_zero.nvim_lua_ls())
                     end,
                     emmet_ls = function()
                         require('lspconfig').emmet_ls.setup({
@@ -180,11 +197,11 @@ return {
                             }
                         })
                     end,
-                    jdtls = lsp.noop,
+                    jdtls = lsp_zero.noop,
                 }
             })
 
-            lsp.format_on_save({
+            lsp_zero.format_on_save({
                 format_opts = {
                     async = false,
                     timeout_ms = 10000,
@@ -192,9 +209,10 @@ return {
                 servers = {
                     ['lua_ls'] = { 'lua' },
                     ['rust_analyzer'] = { 'rust' },
+                    ['ocamllsp'] = { 'ocaml' },
                     -- if you have a working setup with null-ls
                     -- you can specify filetypes it can format.
-                    -- ['null-ls'] = {'javascript', 'typescript'},
+                    -- ['null-ls'] = { "ocaml" },
                 }
             })
 
