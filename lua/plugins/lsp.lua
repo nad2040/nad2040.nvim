@@ -1,19 +1,13 @@
 return {
     {
         'VonHeikemen/lsp-zero.nvim',
-        branch = 'v3.x',
+        branch = 'v4.x',
         lazy = true,
         config = false,
-        init = function()
-            -- Disable automatic setup, we are doing it manually
-            vim.g.lsp_zero_extend_cmp = 0
-            vim.g.lsp_zero_extend_lspconfig = 0
-        end,
     },
     {
         'williamboman/mason.nvim',
-        cmd = { 'Mason', 'MasonInstall', 'MasonUpdate' },
-        lazy = true,
+        lazy = false,
         config = true,
     },
     -- Autocompletion
@@ -77,50 +71,42 @@ return {
     },
     -- LSP
     {
-        'williamboman/mason-lspconfig.nvim',
+        'neovim/nvim-lspconfig',
         cmd = { 'LspInfo', 'LspInstall', 'LspStart' },
         event = { 'BufReadPre', 'BufNewFile' },
         dependencies = {
-            { 'neovim/nvim-lspconfig' },
             { 'hrsh7th/cmp-nvim-lsp' },
+            { 'williamboman/mason.nvim' },
+            { 'williamboman/mason-lspconfig.nvim' },
         },
         config = function()
-            -- This is where all the LSP shenanigans will live
             local lsp_zero = require('lsp-zero')
-            lsp_zero.extend_lspconfig()
-            -- .preset({
-            --     set_lsp_keymaps = { preserve_mappings = false },
-            -- })
 
-            -- lsp.omnifunc.setup({
-            --     tabcomplete = true,
-            --     use_fallback = true,
-            --     update_on_delete = true,
-            -- })
-
-            lsp_zero.on_attach(function(client, bufnr)
+            local lsp_attach = function(client, bufnr)
                 local opts = { buffer = bufnr, remap = false }
 
+                -- lsp_zero.default_keymaps({ buffer = bufnr })
                 local wk = require('which-key')
-                wk.register({
+                wk.add({
                     -- LSP actions
-                    ["K"] = { function() vim.lsp.buf.hover() end, "Hover" },
-                    ["gd"] = { function() vim.lsp.buf.definition() end, "Go to Definition" },
-                    ["gD"] = { function() vim.lsp.buf.declaration() end, "Go to Declaration" },
-                    ["<leader>vws"] = { function() vim.lsp.buf.workspace_symbol() end, "Workspace symbol" },
-                    ["<leader>vca"] = { function() vim.lsp.buf.code_action() end, "View code actions" },
-                    ["<leader>vrn"] = { function() vim.lsp.buf.rename() end, "Rename" },
-                    ["<leader>vrr"] = { function() vim.lsp.buf.references() end, "References" },
-                    ["<leader>H"] = { function() vim.lsp.inlay_hint(bufnr, nil) end, "Toggle Inlay Hints" },
+                    { "K",           function() vim.lsp.buf.hover() end,                  desc = "Hover" },
+                    { "gd",          function() vim.lsp.buf.definition() end,             desc = "Go to Definition" },
+                    { "gD",          function() vim.lsp.buf.declaration() end,            desc = "Go to Declaration" },
+                    { "gi",          function() vim.lsp.buf.implementation() end,         desc = "Go to Implementation" },
+                    { "go",          function() vim.lsp.buf.type_definition() end,        desc = "Go to Type Definition" },
+                    { "gr",          function() vim.lsp.buf.references() end,             desc = "Go to References" },
+                    { "gs",          function() vim.lsp.buf.signature_help() end,         desc = "Signature help" },
+                    { "<leader>vws", function() vim.lsp.buf.workspace_symbol() end,       desc = "Workspace symbol" },
+                    { "<leader>vca", function() vim.lsp.buf.code_action() end,            desc = "View code actions" },
+                    { "<leader>vrn", function() vim.lsp.buf.rename() end,                 desc = "Rename" },
+                    { "<leader>H",   function() vim.lsp.inlay_hint(bufnr, nil) end,       desc = "Toggle Inlay Hints" },
+                    { "<leader>f",   function() vim.lsp.buf.format({ async = true }) end, desc = "Format" },
                     -- Diagnostics
-                    ["<leader>vd"] = { function() vim.diagnostic.open_float() end, "Open diagnostic" },
-                    ["[d"] = { function() vim.diagnostic.goto_prev() end, "Previous diagnostic" },
-                    ["]d"] = { function() vim.diagnostic.goto_next() end, "Next diagnostic" },
-                    ["<leader>f"] = { function() vim.lsp.buf.format() end, "Format" },
-                }, { buffer = bufnr })
-                wk.register({
-                    ["<C-h>"] = { function() vim.lsp.buf.signature_help() end, "Signature help" }
-                }, { mode = "i", buffer = bufnr })
+                    { "<leader>vd",  function() vim.diagnostic.open_float() end,          desc = "Open diagnostic" },
+                    { "[d",          function() vim.diagnostic.goto_prev() end,           desc = "Previous diagnostic" },
+                    { "]d",          function() vim.diagnostic.goto_next() end,           desc = "Next diagnostic" },
+
+                })
 
                 -- vim.api.nvim_create_augroup("lsp_augroup", { clear = true })
                 -- vim.api.nvim_create_autocmd("InsertEnter", {
@@ -133,7 +119,20 @@ return {
                 --     callback = function() vim.lsp.inlay_hint(bufnr, false) end,
                 --     group = "lsp_augroup",
                 -- })
-            end)
+            end
+
+            lsp_zero.extend_lspconfig({
+                suggest_lsp_servers = false,
+                sign_icons = {
+                    error = 'E',
+                    warn = 'W',
+                    hint = 'H',
+                    info = 'I'
+                },
+                sign_text = true,
+                lsp_attach = lsp_attach,
+                capabilities = require('cmp_nvim_lsp').default_capabilities()
+            })
 
             -- Fix Undefined global 'vim'
             lsp_zero.configure('lua_ls', {
@@ -149,38 +148,38 @@ return {
                 }
             })
 
-            lsp_zero.set_preferences({
-                suggest_lsp_servers = false,
-                sign_icons = {
-                    error = 'E',
-                    warn = 'W',
-                    hint = 'H',
-                    info = 'I'
-                }
-            })
-
             require('mason').setup({})
             require('mason-lspconfig').setup({
                 ensure_installed = {
                     'clangd',
                     'jdtls',
                     'lua_ls',
-                    'pyright',
+                    'jedi_language_server',
                     'rust_analyzer',
                     'ocamllsp',
                     'pest_ls',
                     'tsserver',
                 },
                 handlers = {
-                    lsp_zero.default_setup,
+                    -- this first function is the "default handler"
+                    -- it applies to every language server without a "custom handler"
+                    function(server_name)
+                        if server_name == "tsserver" then
+                            server_name = "ts_ls"
+                        end
+                        require('lspconfig')[server_name].setup({})
+                    end,
                     pest_ls = function()
                         require('lspconfig').pest_ls.setup({
                             filetypes = { "pest" }
                         })
                     end,
                     lua_ls = function()
-                        -- (Optional) Configure lua language server for neovim
-                        require('lspconfig').lua_ls.setup(lsp_zero.nvim_lua_ls())
+                        require('lspconfig').lua_ls.setup({
+                            on_init = function(client)
+                                lsp_zero.nvim_lua_settings(client, {})
+                            end,
+                        })
                     end,
                     emmet_ls = function()
                         require('lspconfig').emmet_ls.setup({

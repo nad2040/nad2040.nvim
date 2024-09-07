@@ -10,34 +10,6 @@ return {
                 -- or leave it empty to use the default settings
                 -- refer to the configuration section below
             })
-            wk.register(
-                {
-                    a = { name = "alpha" },
-                    d = { name = "debug" },
-                    g = {
-                        name = "gitsigns/...",
-                        s = {
-                            name = "gitsigns",
-                            t = { name = "toggle" },
-                        },
-                    },
-                    t = {
-                        name = "trouble/telescope",
-                        t = {
-                            name = "trouble",
-                            d = { name = "diagnostics" },
-                        },
-                        l = {
-                            name = "telescope",
-                            f = { name = "find" },
-                        },
-                    },
-                    z = { name = "zen" },
-                },
-                {
-                    prefix = "<leader>"
-                }
-            )
         end,
     },
 }
