@@ -6,9 +6,9 @@ keymap("", "<Space>", "<Nop>", opts)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
-keymap("n", "H", "<CMD>bp<CR>")
-keymap("n", "L", "<CMD>bn<CR>")
-keymap("n", "X", "<CMD>bd<CR>")
+keymap("n", "H", "<CMD>BufferPrevious<CR>")
+keymap("n", "L", "<CMD>BufferNext<CR>")
+keymap("n", "X", "<CMD>BufferClose<CR>")
 
 keymap("v", "J", ":m '>+1<CR>gv=gv")
 keymap("v", "K", ":m '<-2<CR>gv=gv")

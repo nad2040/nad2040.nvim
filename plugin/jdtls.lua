@@ -3,9 +3,9 @@ local cache_vars = {}
 
 local root_markers = {
     '.git',
-    'mvnw',
-    'gradlew',
-    'pom.xml',
+    -- 'mvnw',
+    -- 'gradlew',
+    -- 'pom.xml',
     'build.gradle',
 }
 
@@ -27,8 +27,9 @@ local function get_jdtls_paths()
 
     path.data_dir = vim.fn.stdpath('cache') .. '/jdtls/workspace'
 
-    local jdtls_install = '/opt/homebrew/Cellar/jdtls/1.25.0/libexec'
-    --                                  change here   ^^^^^^
+    local jdtls_install = require('mason-registry')
+        .get_package('jdtls')
+        :get_install_path()
 
     -- path.java_agent = jdtls_install .. '/lombok.jar'
     path.launcher_jar = vim.fn.glob(jdtls_install .. '/plugins/org.eclipse.equinox.launcher_*.jar')
@@ -86,7 +87,7 @@ local function get_jdtls_paths()
         --
         {
             name = "JavaSE-1.8",
-            path = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home",
+            path = "/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Home",
         },
         {
             name = "JavaSE-11",

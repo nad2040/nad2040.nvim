@@ -154,19 +154,15 @@ return {
                     'clangd',
                     'jdtls',
                     'lua_ls',
-                    'jedi_language_server',
+                    -- 'gleam',
                     'rust_analyzer',
                     'ocamllsp',
                     'pest_ls',
-                    'tsserver',
                 },
                 handlers = {
                     -- this first function is the "default handler"
                     -- it applies to every language server without a "custom handler"
                     function(server_name)
-                        if server_name == "tsserver" then
-                            server_name = "ts_ls"
-                        end
                         require('lspconfig')[server_name].setup({})
                     end,
                     pest_ls = function()
@@ -196,9 +192,16 @@ return {
                             }
                         })
                     end,
+                    groovyls = function()
+                        require('lspconfig').groovyls.setup({
+                            cmd = { "groovy-language-server" },
+                        })
+                    end,
                     jdtls = lsp_zero.noop,
                 }
             })
+
+            require("lspconfig").gleam.setup({})
 
             lsp_zero.format_on_save({
                 format_opts = {
